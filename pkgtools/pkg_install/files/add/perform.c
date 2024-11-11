@@ -654,7 +654,12 @@ copy_data_to_disk(struct archive *reader, struct archive *writer,
 	int r;
 	const void *buff;
 	size_t size;
+
+#if ARCHIVE_VERSION_NUMBER < 3000000
 	off_t offset;
+#else
+  la_int64_t offset;
+#endif
 
 	for (;;) {
 		r = archive_read_data_block(reader, &buff, &size, &offset);
