@@ -362,6 +362,13 @@ checkarg_no_symlink_path()
 	done
 
 	_realdir=`cd "$_dir" && exec pwd`
+
+	# In my experiments with FreeMiNT, `pwd` for sometimes results in an added
+	# trailing slash, which wouldn't match the original name, which would
+	# convince this script that there's a symlink where there is none. Avoid
+	# that possibility by trimming off the slash in any case.
+	_realdir="${_realdir%%/}"
+
 	[ "$_realdir" = "$_dir" ] && return
 
 	die "ERROR: The path $1 (from $2) must not contain symlinks.
