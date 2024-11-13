@@ -1163,6 +1163,9 @@ if [ x"$has_ssp" = x"no" ] && [ x"$check_ssp" = x"yes" ]; then
 	echo "_OPSYS_SUPPORTS_SSP=	no" >> ${TARGET_MKCONF}
 fi
 
+# for debugging, mainly
+echo "PKG_DEVELOPER=		yes" >> ${TARGET_MKCONF}
+
 # enable unprivileged builds if not root
 if [ "$unprivileged" = "yes" ]; then
 	echo "UNPRIVILEGED=		yes" >> ${TARGET_MKCONF}
