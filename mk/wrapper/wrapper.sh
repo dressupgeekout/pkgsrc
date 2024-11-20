@@ -82,7 +82,7 @@ esac
 qcmd="$0"; for arg in ${1+"$@"}; do shquote "$arg"; qcmd="$qcmd $shquoted"; done
 msg_log "$wrapperlog" "[*] $0 $qcmd"
 
-cmd="@WRAPPEE@"
+cmd="$(realpath @WRAPPEE@)"
 case "$*" in
 --wrappee-name) $echo $cmd ; exit ;;
 esac
