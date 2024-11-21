@@ -418,7 +418,8 @@ cleanlib:
 
 .if defined(SRCS)
 afterdepend: .depend
-	@(TMP=/tmp/_depend$$$$; \
+	touch .depend
+	(TMP=/tmp/_depend$$$$; \
 	    sed -e 's/^\([^\.]*\).o[ ]*:/\1.o \1.po \1.so \1.ln:/' \
 	      < .depend > $$TMP; \
 	    mv $$TMP .depend)

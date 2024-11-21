@@ -9,8 +9,8 @@ realdepend: beforedepend
 realdepend: .depend
 .NOPATH: .depend
 .depend: ${SRCS} ${DPSRCS}
-	@rm -f .depend
-	@touch .depend
+	rm -f .depend
+	touch .depend
 cleandepend:
 	rm -f .depend ${.CURDIR}/tags ${CLEANDEPEND}
 .else
