@@ -1168,6 +1168,7 @@ echo "PKG_DEVELOPER=		yes" >> ${TARGET_MKCONF}
 echo "ECHO_WRAPPER_MSG=		\${ECHO}" >> ${TARGET_MKCONF}
 echo "UNPRIVILEGED_USER=		charlotte" >> ${TARGET_MKCONF}
 echo "UNPRIVILEGED_GROUP=		users" >> ${TARGET_MKCONF}
+echo "PKG_DEBUG_LEVEL=		2" >> ${TARGET_MKCONF}
 
 # enable unprivileged builds if not root
 if [ "$unprivileged" = "yes" ]; then
