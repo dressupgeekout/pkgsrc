@@ -5,7 +5,6 @@
 #
 
 set -e
-set -x
 
 # Don't let the bootstrap program get confused by a pre-existing mk.conf
 # file.
@@ -24,6 +23,10 @@ make_jobs=1
 unprivileged=yes
 opsys=FreeMiNT
 machine_arch=m68k
+
+# export MACHINE_ARCH and OPSYS for bmake and pkg_install.
+MACHINE_ARCH=${machine_arch}; export MACHINE_ARCH
+OPSYS=${opsys}; export OPSYS
 
 ###############
 
@@ -122,7 +125,7 @@ build_install_sh() {
   fi
 }
 
-#x build_install_sh
+build_install_sh
 
 
 ####################### export the proper environment ##
@@ -139,86 +142,68 @@ fi
 ############################## set up an example mk.conf file ####
 
 TARGET_MKCONF=${wrkdir}/mk.conf.example
-#x echo_msg "Creating default mk.conf in ${wrkdir}"
-#x echo "# Example ${sysconfdir}/mk.conf file produced by bootstrap-pkgsrc" > ${TARGET_MKCONF}
-#x echo "# `date`" >> ${TARGET_MKCONF}
-#x echo "" >> ${TARGET_MKCONF}
-#x echo ".ifdef BSD_PKG_MK	# begin pkgsrc settings" >> ${TARGET_MKCONF}
-#x echo "" >> ${TARGET_MKCONF}
-#x 
-#x if [ -n "$abi" ]; then
-#x 	echo "ABI=			$abi" >> ${TARGET_MKCONF}
-#x fi
-#x if [ "$compiler" != "" ]; then
-#x 	echo "PKGSRC_COMPILER=	$compiler" >> ${TARGET_MKCONF}
-#x fi
-#x case "$compiler" in
-#x sunpro)
-#x 	echo "CC=			cc"        >> ${TARGET_MKCONF}
-#x 	echo "CXX=			CC"        >> ${TARGET_MKCONF}
-#x 	echo "CPP=			\${CC} -E" >> ${TARGET_MKCONF}
-#x 	;;
-#x clang)
-#x 	echo "CC=			clang"     >> ${TARGET_MKCONF}
-#x 	echo "CXX=			clang++"   >> ${TARGET_MKCONF}
-#x 	echo "CPP=			\${CC} -E" >> ${TARGET_MKCONF}
-#x 	if [ -z "$CLANGBASE" -a -f "/usr/bin/clang" ]; then
-#x 		CLANGBASE="/usr"
-#x 	fi
-#x 	if [ -n "$CLANGBASE" -o -f "/bin/clang" ]; then
-#x 		echo "CLANGBASE=		$CLANGBASE" >> ${TARGET_MKCONF}
-#x 	fi
-#x 	;;
-#x esac
-#x if [ -n "$GCCBASE" ]; then
-#x 	echo "GCCBASE=		$GCCBASE" >> ${TARGET_MKCONF}
-#x fi
-#x if [ -n "$SUNWSPROBASE" ]; then
-#x 	echo "SUNWSPROBASE=		$SUNWSPROBASE" >> ${TARGET_MKCONF}
-#x fi
-#x echo "" >> ${TARGET_MKCONF}
-#x 
-#x if [ x"$has_ssp" = x"no" ] && [ x"$check_ssp" = x"yes" ]; then
-#x 	echo "_OPSYS_SUPPORTS_SSP=	no" >> ${TARGET_MKCONF}
-#x fi
-#x 
-#x # for debugging, mainly
-#x echo "PKG_DEVELOPER=		yes" >> ${TARGET_MKCONF}
-#x echo "ECHO_WRAPPER_MSG=		\${ECHO}" >> ${TARGET_MKCONF}
-#x echo "UNPRIVILEGED_USER=		${user}" >> ${TARGET_MKCONF}
-#x echo "UNPRIVILEGED_GROUP=		${group}" >> ${TARGET_MKCONF}
-#x echo "PKG_DEBUG_LEVEL=		2" >> ${TARGET_MKCONF}
-#x 
-#x # enable unprivileged builds if not root
-#x if [ "$unprivileged" = "yes" ]; then
-#x 	echo "UNPRIVILEGED=		yes" >> ${TARGET_MKCONF}
-#x fi
-#x 
-#x # save environment in example mk.conf
-#x echo "PKG_DBDIR=		$pkgdbdir" >> ${TARGET_MKCONF}
-#x echo "LOCALBASE=		$prefix" >> ${TARGET_MKCONF}
-#x if [ "${sysconfbase}" != "/etc" ]; then
-#x echo "SYSCONFBASE=		$sysconfbase" >> ${TARGET_MKCONF}
-#x fi
-#x echo "VARBASE=		$varbase" >> ${TARGET_MKCONF}
-#x if [ "${sysconfdir}" != "${prefix}/etc" ]; then
-#x 	echo "PKG_SYSCONFBASE=	$sysconfdir" >> ${TARGET_MKCONF}
-#x fi
-#x echo "PKG_TOOLS_BIN=		$prefix/sbin" >> ${TARGET_MKCONF}
-#x echo "PKGINFODIR=		$pkginfodir" >> ${TARGET_MKCONF}
-#x echo "PKGMANDIR=		$pkgmandir" >> ${TARGET_MKCONF}
-#x echo "" >> ${TARGET_MKCONF}
+echo_msg "Creating default mk.conf in ${wrkdir}"
+echo "# Example ${sysconfdir}/mk.conf file produced by bootstrap-pkgsrc" > ${TARGET_MKCONF}
+echo "# `date`" >> ${TARGET_MKCONF}
+echo "" >> ${TARGET_MKCONF}
+echo ".ifdef BSD_PKG_MK	# begin pkgsrc settings" >> ${TARGET_MKCONF}
+echo "" >> ${TARGET_MKCONF}
+
+if [ -n "$abi" ]; then
+	echo "ABI=			$abi" >> ${TARGET_MKCONF}
+fi
+if [ "$compiler" != "" ]; then
+	echo "PKGSRC_COMPILER=	$compiler" >> ${TARGET_MKCONF}
+fi
+if [ -n "$GCCBASE" ]; then
+	echo "GCCBASE=		$GCCBASE" >> ${TARGET_MKCONF}
+fi
+if [ -n "$SUNWSPROBASE" ]; then
+	echo "SUNWSPROBASE=		$SUNWSPROBASE" >> ${TARGET_MKCONF}
+fi
+echo "" >> ${TARGET_MKCONF}
+
+if [ x"$has_ssp" = x"no" ] && [ x"$check_ssp" = x"yes" ]; then
+	echo "_OPSYS_SUPPORTS_SSP=	no" >> ${TARGET_MKCONF}
+fi
+
+# for debugging, mainly
+echo "PKG_DEVELOPER=		yes" >> ${TARGET_MKCONF}
+echo "ECHO_WRAPPER_MSG=		\${ECHO}" >> ${TARGET_MKCONF}
+echo "UNPRIVILEGED_USER=		${user}" >> ${TARGET_MKCONF}
+echo "UNPRIVILEGED_GROUP=		${group}" >> ${TARGET_MKCONF}
+echo "PKG_DEBUG_LEVEL=		2" >> ${TARGET_MKCONF}
+
+# enable unprivileged builds if not root
+if [ "$unprivileged" = "yes" ]; then
+	echo "UNPRIVILEGED=		yes" >> ${TARGET_MKCONF}
+fi
+
+# save environment in example mk.conf
+echo "PKG_DBDIR=		$pkgdbdir" >> ${TARGET_MKCONF}
+echo "LOCALBASE=		$prefix" >> ${TARGET_MKCONF}
+if [ "${sysconfbase}" != "/etc" ]; then
+echo "SYSCONFBASE=		$sysconfbase" >> ${TARGET_MKCONF}
+fi
+echo "VARBASE=		$varbase" >> ${TARGET_MKCONF}
+if [ "${sysconfdir}" != "${prefix}/etc" ]; then
+	echo "PKG_SYSCONFBASE=	$sysconfdir" >> ${TARGET_MKCONF}
+fi
+echo "PKG_TOOLS_BIN=		$prefix/sbin" >> ${TARGET_MKCONF}
+echo "PKGINFODIR=		$pkginfodir" >> ${TARGET_MKCONF}
+echo "PKGMANDIR=		$pkgmandir" >> ${TARGET_MKCONF}
+echo "" >> ${TARGET_MKCONF}
 
 BOOTSTRAP_MKCONF=${wrkdir}/mk.conf
-#x cp ${TARGET_MKCONF} ${BOOTSTRAP_MKCONF}
+cp ${TARGET_MKCONF} ${BOOTSTRAP_MKCONF}
 
-#x case "$cwrappers" in
-#x yes|no)
-#x 	echo "USE_CWRAPPERS=		$cwrappers" >> ${TARGET_MKCONF}
-#x 	echo "USE_CWRAPPERS=		$cwrappers" >> ${BOOTSTRAP_MKCONF}
-#x 	echo "" >> ${TARGET_MKCONF}
-#x 	;;
-#x esac
+case "$cwrappers" in
+yes|no)
+	echo "USE_CWRAPPERS=		$cwrappers" >> ${TARGET_MKCONF}
+	echo "USE_CWRAPPERS=		$cwrappers" >> ${BOOTSTRAP_MKCONF}
+	echo "" >> ${TARGET_MKCONF}
+	;;
+esac
 
 # sbin is used by pkg_install, share/mk by bootstrap-mk-files
 mkdir -p $wrkdir/sbin $wrkdir/share/mk
@@ -233,7 +218,7 @@ bootstrap_mk_files() {
   sh ./bootstrap.sh)"
 }
 
-#x bootstrap_mk_files
+bootstrap_mk_files
 
 ###################
 
@@ -245,7 +230,7 @@ bootstrap_bmake() {
 	run_cmd "$install_sh -c -o $user -g $group -m 755 $wrkdir/bmake/bmake $wrkdir/bin/bmake"
 }
 
-#x bootstrap_bmake
+bootstrap_bmake
 
 bmake="$wrkdir/bin/bmake"
 
@@ -259,7 +244,7 @@ build_libnbcompat() {
   run_cmd "(cd $wrkdir/libnbcompat; $shprog ./configure $configure_quiet_flags -C --prefix=$prefix --infodir=$infodir --mandir=$mandir --sysconfdir=$sysconfdir --enable-bsd-getopt --enable-db && $bmake $make_quiet_flags -j$make_jobs)"
 }
 
-#x build_libnbcompat
+build_libnbcompat
 
 ###################
 
@@ -268,55 +253,55 @@ extra_libarchive_depends() {
 	$sedprog -n -e 's/Libs.private: //p' $wrkdir/libarchive/build/pkgconfig/libarchive.pc
 }
 
-#x echo_msg "Bootstrapping pkgtools"
-#x 
-#x copy_src $pkgsrcdir/archivers/libarchive/files libarchive
-#x run_cmd "(cd $wrkdir/libarchive; env $BSTRAP_ENV CONFIG_SHELL=$shprog \
-#x $shprog ./configure $configure_quiet_flags --enable-static --disable-shared \
-#x --disable-bsdcat --disable-bsdtar --disable-bsdcpio --disable-bsdunzip \
-#x --disable-posix-regex-lib --disable-xattr --disable-maintainer-mode \
-#x --disable-acl --without-zlib --without-bz2lib --without-iconv --without-lzma \
-#x --without-lzo2 --without-lz4 --without-nettle --without-openssl \
-#x --without-xml2 --without-expat --without-zstd \
-#x MAKE=$bmake && $bmake $make_quiet_flags -j$make_jobs)"
-#x 
-#x copy_src $pkgsrcdir/pkgtools/pkg_install/files pkg_install
-#x run_cmd "(cd $wrkdir/pkg_install; env $BSTRAP_ENV \
-#x CPPFLAGS='$CPPFLAGS -I${wrkdir}/libnbcompat -I${wrkdir}/libarchive/libarchive' \
-#x LDFLAGS='$LDFLAGS -L${wrkdir}/libnbcompat' \
-#x LIBS='$LIBS -lnbcompat' $shprog ./configure $configure_quiet_flags -C \
-#x --enable-bootstrap --prefix=$prefix --sysconfdir=$sysconfdir \
-#x --with-pkgdbdir=$pkgdbdir --infodir=$infodir \
-#x --mandir=$mandir $pkg_install_args && \
-#x STATIC_LIBARCHIVE=$wrkdir/libarchive/.libs/libarchive.a \
-#x STATIC_LIBARCHIVE_LDADD='`extra_libarchive_depends`' \
-#x PKGSRC_MACHINE_ARCH="$machine_arch" $bmake $make_quiet_flags -j$make_jobs)"
-#x 
-#x run_cmd "$install_sh -c -o $user -g $group -m 755 $wrkdir/pkg_install/add/pkg_add $wrkdir/sbin/pkg_add"
-#x run_cmd "$install_sh -c -o $user -g $group -m 755 $wrkdir/pkg_install/admin/pkg_admin $wrkdir/sbin/pkg_admin"
-#x run_cmd "$install_sh -c -o $user -g $group -m 755 $wrkdir/pkg_install/create/pkg_create $wrkdir/sbin/pkg_create"
-#x run_cmd "$install_sh -c -o $user -g $group -m 755 $wrkdir/pkg_install/info/pkg_info $wrkdir/sbin/pkg_info"
-#x 
-#x echo "NATIVE_PKG_ADD_CMD?=		$wrkdir/sbin/pkg_add" >> ${BOOTSTRAP_MKCONF}
-#x echo "NATIVE_PKG_ADMIN_CMD?=		$wrkdir/sbin/pkg_admin" >> ${BOOTSTRAP_MKCONF}
-#x echo "NATIVE_PKG_CREATE_CMD?=		$wrkdir/sbin/pkg_create" >> ${BOOTSTRAP_MKCONF}
-#x echo "NATIVE_PKG_INFO_CMD?=		$wrkdir/sbin/pkg_info" >> ${BOOTSTRAP_MKCONF}
+echo_msg "Bootstrapping pkgtools"
+
+copy_src $pkgsrcdir/archivers/libarchive/files libarchive
+run_cmd "(cd $wrkdir/libarchive; env $BSTRAP_ENV CONFIG_SHELL=$shprog \
+$shprog ./configure $configure_quiet_flags --enable-static --disable-shared \
+--disable-bsdcat --disable-bsdtar --disable-bsdcpio --disable-bsdunzip \
+--disable-posix-regex-lib --disable-xattr --disable-maintainer-mode \
+--disable-acl --without-zlib --without-bz2lib --without-iconv --without-lzma \
+--without-lzo2 --without-lz4 --without-nettle --without-openssl \
+--without-xml2 --without-expat --without-zstd \
+MAKE=$bmake && $bmake $make_quiet_flags -j$make_jobs)"
+
+copy_src $pkgsrcdir/pkgtools/pkg_install/files pkg_install
+run_cmd "(cd $wrkdir/pkg_install; env $BSTRAP_ENV \
+CPPFLAGS='$CPPFLAGS -I${wrkdir}/libnbcompat -I${wrkdir}/libarchive/libarchive' \
+LDFLAGS='$LDFLAGS -L${wrkdir}/libnbcompat' \
+LIBS='$LIBS -lnbcompat' $shprog ./configure $configure_quiet_flags -C \
+--enable-bootstrap --prefix=$prefix --sysconfdir=$sysconfdir \
+--with-pkgdbdir=$pkgdbdir --infodir=$infodir \
+--mandir=$mandir $pkg_install_args && \
+STATIC_LIBARCHIVE=$wrkdir/libarchive/.libs/libarchive.a \
+STATIC_LIBARCHIVE_LDADD='`extra_libarchive_depends`' \
+PKGSRC_MACHINE_ARCH="$machine_arch" $bmake $make_quiet_flags -j$make_jobs)"
+
+run_cmd "$install_sh -c -o $user -g $group -m 755 $wrkdir/pkg_install/add/pkg_add $wrkdir/sbin/pkg_add"
+run_cmd "$install_sh -c -o $user -g $group -m 755 $wrkdir/pkg_install/admin/pkg_admin $wrkdir/sbin/pkg_admin"
+run_cmd "$install_sh -c -o $user -g $group -m 755 $wrkdir/pkg_install/create/pkg_create $wrkdir/sbin/pkg_create"
+run_cmd "$install_sh -c -o $user -g $group -m 755 $wrkdir/pkg_install/info/pkg_info $wrkdir/sbin/pkg_info"
+
+echo "NATIVE_PKG_ADD_CMD?=		$wrkdir/sbin/pkg_add" >> ${BOOTSTRAP_MKCONF}
+echo "NATIVE_PKG_ADMIN_CMD?=		$wrkdir/sbin/pkg_admin" >> ${BOOTSTRAP_MKCONF}
+echo "NATIVE_PKG_CREATE_CMD?=		$wrkdir/sbin/pkg_create" >> ${BOOTSTRAP_MKCONF}
+echo "NATIVE_PKG_INFO_CMD?=		$wrkdir/sbin/pkg_info" >> ${BOOTSTRAP_MKCONF}
 
 MAKECONF=$wrkdir/mk.conf
 export MAKECONF
 
 ###################
 
-#x echo "WRKOBJDIR=		${wrkdir}/wrk" >> ${BOOTSTRAP_MKCONF}
-#x 
-#x echo "" >> ${TARGET_MKCONF}
-#x echo "" >> ${BOOTSTRAP_MKCONF}
-#x if test -n "${mk_fragment}"; then
-#x 	cat "${mk_fragment}" >> ${TARGET_MKCONF}
-#x 	echo "" >> ${TARGET_MKCONF}
-#x fi
-#x echo ".endif			# end pkgsrc settings" >> ${TARGET_MKCONF}
-#x echo ".endif			# end pkgsrc settings" >> ${BOOTSTRAP_MKCONF}
+echo "WRKOBJDIR=		${wrkdir}/wrk" >> ${BOOTSTRAP_MKCONF}
+
+echo "" >> ${TARGET_MKCONF}
+echo "" >> ${BOOTSTRAP_MKCONF}
+if test -n "${mk_fragment}"; then
+	cat "${mk_fragment}" >> ${TARGET_MKCONF}
+	echo "" >> ${TARGET_MKCONF}
+fi
+echo ".endif			# end pkgsrc settings" >> ${TARGET_MKCONF}
+echo ".endif			# end pkgsrc settings" >> ${BOOTSTRAP_MKCONF}
 
 ###################
 
