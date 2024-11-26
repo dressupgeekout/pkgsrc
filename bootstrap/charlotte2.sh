@@ -343,8 +343,12 @@ yes)
 esac
 
 
-# Work around the bonkers-ass bug  re: ar(1) never happening:
-#x only_configure "net/libfetch"
+# Work around the bonkers-ass bug re: ar(1) never happening.
+#
+# There is something inside the bootstrap version of bsd.lib.mk which does
+# NOT like being run inside the pkgsrc fancy-schmancy ENV. Hence the manual
+# fork out to bmake.
+#
 
 do_libfetch_manually() {
 	cd ${wrkdir}/wrk/net/libfetch/work/libfetch-2.40
@@ -353,13 +357,13 @@ do_libfetch_manually() {
 	build_package "net/libfetch"
 }
 
+#x only_configure "net/libfetch"
 #x do_libfetch_manually
 
 #x build_package "sysutils/checkperms"
 #x build_package "devel/bmake"
 
-#build_package "pkgtools/pkg_install"
-
+build_package "pkgtools/pkg_install"
 
 ##############
 
