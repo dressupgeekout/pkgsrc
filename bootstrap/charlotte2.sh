@@ -356,10 +356,28 @@ do_libfetch_manually() {
 #x do_libfetch_manually
 
 #x build_package "sysutils/checkperms"
-
 #x build_package "devel/bmake"
 
-build_package "pkgtools/pkg_install"
+#build_package "pkgtools/pkg_install"
+
+
+##############
+
+# (NOT ESSENTIAL) OK
+#build_package "lang/nawk"
+
+# (NOT ESSENTIAL) OK
+#build_package "textproc/nbsed"
+
+# (NOT ESSENTIAL) OK
+#build_package "shells/mksh"
+
+# (NOT ESSENTIAL) link errors: multiple definitions of chdname()
+#x build_package "archivers/pax"
+
+# (NOT ESSENTIAL) compile errors: #error "cannot find 32 bit type..."
+#build_package "shells/pdksh"
+
 
 exit 0 ########################
 
